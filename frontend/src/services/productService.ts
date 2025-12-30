@@ -1,5 +1,5 @@
 import api from './api';
-import { Product, PaginatedResponse } from '../types';
+import type { Product, PaginatedResponse } from '../types';
 
 export const productService = {
   getAllProducts: async (page = 0, size = 20) => {

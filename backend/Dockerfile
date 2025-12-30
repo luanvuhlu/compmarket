@@ -1,21 +1,28 @@
 FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /workspace/app
 
-# Copy Gradle wrapper and build files
-COPY gradlew .
-COPY gradle gradle
+# Install Gradle
+RUN apk add --no-cache wget unzip && \
+    wget https://services.gradle.org/distributions/gradle-8.5-bin.zip && \
+    unzip gradle-8.5-bin.zip && \
+    rm gradle-8.5-bin.zip && \
+    mv gradle-8.5 /opt/gradle
+
+ENV PATH="/opt/gradle/bin:${PATH}"
+
+# Copy build files
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
 COPY gradle.properties .
 
 # Download dependencies
-RUN ./gradlew dependencies --no-daemon
+RUN gradle dependencies --no-daemon
 
 # Copy source code
 COPY src src
 
 # Build the application
-RUN ./gradlew clean build -x test --no-daemon
+RUN gradle clean build -x test --no-daemon
 
 # Production stage
 FROM eclipse-temurin:21-jdk-alpine

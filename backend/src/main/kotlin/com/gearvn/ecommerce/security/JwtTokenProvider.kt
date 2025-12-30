@@ -52,7 +52,7 @@ class JwtTokenProvider(
     }
     
     private fun extractAllClaims(token: String): Claims {
-        return Jwts.parserBuilder()
+        return Jwts.parser()
             .setSigningKey(secretKey)
             .build()
             .parseClaimsJws(token)

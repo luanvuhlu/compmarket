@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { cartService } from '../services/cartService';
-import { Cart } from '../types';
+import type { Cart } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 const CartPage = () => {

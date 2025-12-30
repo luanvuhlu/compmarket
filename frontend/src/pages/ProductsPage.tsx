@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { productService } from '../services/productService';
-import { Product } from '../types';
+import type { Product } from '../types';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState<Product[]>([]);

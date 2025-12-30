@@ -13,6 +13,11 @@ const HomePage = () => {
           <Link to="/cart" style={{ marginRight: '1rem' }}>Cart</Link>
           {user ? (
             <>
+              {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
+                <Link to="/admin" style={{ marginRight: '1rem', color: '#dc3545', fontWeight: 'bold' }}>
+                  Admin Panel
+                </Link>
+              )}
               <span style={{ marginRight: '1rem' }}>Welcome, {user.firstName}!</span>
               <button onClick={logout}>Logout</button>
             </>

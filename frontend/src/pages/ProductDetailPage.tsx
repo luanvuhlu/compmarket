@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { productService } from '../services/productService';
 import { cartService } from '../services/cartService';
-import { Product } from '../types';
+import type { Product } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 const ProductDetailPage = () => {

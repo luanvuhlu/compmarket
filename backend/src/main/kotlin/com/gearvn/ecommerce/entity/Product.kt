@@ -1,6 +1,5 @@
 package com.gearvn.ecommerce.entity
 
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import java.math.BigDecimal
