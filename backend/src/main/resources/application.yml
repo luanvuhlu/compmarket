@@ -38,6 +38,9 @@ spring:
       host: localhost
       port: 6379
       timeout: 3000ms
+    elasticsearch:
+      repositories:
+        enabled: true
   
   cache:
     type: redis
@@ -83,6 +86,11 @@ app:
   jwt:
     secret: ${JWT_SECRET:your-secret-key-change-this-in-production-make-it-very-long-and-secure}
     expiration: 86400000 # 24 hours
+  
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URIS:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
   
   file:
     upload-dir: ./uploads
