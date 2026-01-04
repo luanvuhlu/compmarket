@@ -6,6 +6,7 @@ import com.gearvn.ecommerce.dto.SearchResponse
 import com.gearvn.ecommerce.service.SearchService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,6 +15,7 @@ import java.math.BigDecimal
 @RestController
 @RequestMapping("/api/search")
 @Tag(name = "Search", description = "Advanced product search endpoints with Elasticsearch")
+@ConditionalOnBean(SearchService::class)
 class SearchController(
     private val searchService: SearchService
 ) {
