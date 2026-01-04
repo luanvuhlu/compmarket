@@ -197,15 +197,23 @@ class ProductIndexService(
 
     /**
      * Parse images from JSONB string using Jackson
+     * Supports both simple arrays ["url1", "url2"] and object arrays [{"url":"url1"}]
      */
     private fun parseImages(imagesJson: String?): List<String> {
         if (imagesJson.isNullOrBlank()) return emptyList()
         
         return try {
+            // Try to parse as simple array first
             objectMapper.readValue<List<String>>(imagesJson)
         } catch (e: Exception) {
-            logger.warn("Failed to parse images JSON: $imagesJson", e)
-            emptyList()
+            try {
+                // Try to parse as array of objects with 'url' property
+                val imageObjects = objectMapper.readValue<List<Map<String, String>>>(imagesJson)
+                imageObjects.mapNotNull { it["url"] }
+            } catch (e2: Exception) {
+                logger.warn("Failed to parse images JSON: $imagesJson", e2)
+                emptyList()
+            }
         }
     }
 }
