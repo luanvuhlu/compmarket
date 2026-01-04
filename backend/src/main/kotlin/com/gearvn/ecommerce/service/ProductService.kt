@@ -1,14 +1,16 @@
 package com.gearvn.ecommerce.service
 
+import com.gearvn.ecommerce.dto.PageResponse
 import com.gearvn.ecommerce.dto.ProductCreateRequest
 import com.gearvn.ecommerce.dto.ProductResponse
 import com.gearvn.ecommerce.entity.Product
 import com.gearvn.ecommerce.exception.ResourceNotFoundException
+import com.gearvn.ecommerce.logger
 import com.gearvn.ecommerce.repository.CategoryRepository
 import com.gearvn.ecommerce.repository.ProductRepository
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,11 +20,15 @@ class ProductService(
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository
 ) {
+    private val log = logger()
 
     @Cacheable(value = ["products"], key = "#pageable.pageNumber + '-' + #pageable.pageSize")
-    fun getAllProducts(pageable: Pageable): Page<ProductResponse> {
-        return productRepository.findByIsActiveTrue(pageable)
-            .map { it.toResponse() }
+    fun getAllProducts(pageable: Pageable): PageResponse<ProductResponse> {
+        val page = productRepository.findAll(pageable)
+        val products = page.content.map { it.toResponse() }
+        log.info("Fetched ${products.size} products for page ${pageable.pageNumber}")
+        val productPage = PageImpl(products, pageable, page.totalElements)
+        return PageResponse.from(productPage)
     }
 
     @Cacheable(value = ["product"], key = "#id")
@@ -32,17 +38,21 @@ class ProductService(
         return product.toResponse()
     }
 
-    fun searchProducts(keyword: String, pageable: Pageable): Page<ProductResponse> {
-        return productRepository.searchProducts(keyword, pageable)
-            .map { it.toResponse() }
+    fun searchProducts(keyword: String, pageable: Pageable): PageResponse<ProductResponse> {
+        val page = productRepository.searchProducts(keyword, pageable)
+        val products = page.content.map { it.toResponse() }
+        val productPage = PageImpl(products, pageable, page.totalElements)
+        return PageResponse.from(productPage)
     }
 
-    fun getProductsByCategory(categoryId: Long, pageable: Pageable): Page<ProductResponse> {
+    fun getProductsByCategory(categoryId: Long, pageable: Pageable): PageResponse<ProductResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")
         }
-        return productRepository.findByCategoryIdAndIsActiveTrue(categoryId, pageable)
-            .map { it.toResponse() }
+        val page = productRepository.findByCategoryIdAndIsActiveTrue(categoryId, pageable)
+        val products = page.content.map { it.toResponse() }
+        val productPage = PageImpl(products, pageable, page.totalElements)
+        return PageResponse.from(productPage)
     }
 
     @Transactional

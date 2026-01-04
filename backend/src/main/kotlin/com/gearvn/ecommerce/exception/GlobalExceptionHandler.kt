@@ -1,6 +1,7 @@
 package com.gearvn.ecommerce.exception
 
 import com.gearvn.ecommerce.dto.ErrorResponse
+import com.gearvn.ecommerce.logger
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.BadCredentialsException
@@ -12,6 +13,7 @@ import java.time.Instant
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
+    private val log = logger()
 
     @ExceptionHandler(ResourceNotFoundException::class)
     fun handleResourceNotFoundException(
@@ -123,6 +125,7 @@ class GlobalExceptionHandler {
         ex: Exception,
         request: WebRequest
     ): ResponseEntity<ErrorResponse> {
+        log.error("Unhandled exception occurred: ", ex)
         val errorResponse = ErrorResponse(
             timestamp = Instant.now().toEpochMilli(),
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),

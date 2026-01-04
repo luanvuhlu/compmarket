@@ -28,17 +28,7 @@ class ProductController(
     ): ResponseEntity<PageResponse<ProductResponse>> {
         val pageable = PageRequest.of(page, size)
         val productPage = productService.getAllProducts(pageable)
-        
-        return ResponseEntity.ok(
-            PageResponse(
-                content = productPage.content,
-                page = productPage.number,
-                size = productPage.size,
-                totalElements = productPage.totalElements,
-                totalPages = productPage.totalPages,
-                last = productPage.isLast
-            )
-        )
+        return ResponseEntity.ok(productPage)
     }
 
     @GetMapping("/{id}")
@@ -64,16 +54,7 @@ class ProductController(
         val pageable = PageRequest.of(page, size)
         val productPage = productService.searchProducts(keyword, pageable)
         
-        return ResponseEntity.ok(
-            PageResponse(
-                content = productPage.content,
-                page = productPage.number,
-                size = productPage.size,
-                totalElements = productPage.totalElements,
-                totalPages = productPage.totalPages,
-                last = productPage.isLast
-            )
-        )
+        return ResponseEntity.ok(productPage)
     }
 
     @GetMapping("/category/{categoryId}")
@@ -86,15 +67,6 @@ class ProductController(
         val pageable = PageRequest.of(page, size)
         val productPage = productService.getProductsByCategory(categoryId, pageable)
         
-        return ResponseEntity.ok(
-            PageResponse(
-                content = productPage.content,
-                page = productPage.number,
-                size = productPage.size,
-                totalElements = productPage.totalElements,
-                totalPages = productPage.totalPages,
-                last = productPage.isLast
-            )
-        )
+        return ResponseEntity.ok(productPage)
     }
 }

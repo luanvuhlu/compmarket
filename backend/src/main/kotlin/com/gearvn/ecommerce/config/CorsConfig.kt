@@ -14,14 +14,15 @@ class CorsConfig(
     @Bean
     fun corsFilter(): CorsFilter {
         val source = UrlBasedCorsConfigurationSource()
-        val config = CorsConfiguration()
-        
-        config.allowCredentials = appProperties.cors.allowCredentials
-        config.allowedOrigins = appProperties.cors.allowedOrigins.split(",")
-        config.allowedMethods = appProperties.cors.allowedMethods.split(",")
-        config.allowedHeaders = appProperties.cors.allowedHeaders.split(",")
-        config.maxAge = 3600L
-        
+        val config = CorsConfiguration().apply {
+            allowCredentials = appProperties.cors.allowCredentials
+            allowedOrigins = appProperties.cors.allowedOrigins.split(",")
+            allowedMethods = appProperties.cors.allowedMethods.split(",")
+            allowedHeaders = appProperties.cors.allowedHeaders.split(",")
+            allowedHeaders = listOf("*")
+            exposedHeaders = listOf("Authorization")
+            maxAge = 3600L
+        }
         source.registerCorsConfiguration("/api/**", config)
         return CorsFilter(source)
     }

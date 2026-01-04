@@ -5,13 +5,16 @@ import type { Cart } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 const CartPage = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Wait for auth to finish loading before checking user
+    if (authLoading) return;
+    
     if (!user) {
       navigate('/login');
       return;
@@ -29,7 +32,7 @@ const CartPage = () => {
     };
 
     fetchCart();
-  }, [user, navigate]);
+  }, [user, authLoading, navigate]);
 
   const handleUpdateQuantity = async (itemId: number, quantity: number) => {
     try {
@@ -70,7 +73,7 @@ const CartPage = () => {
         <Link to="/products">Continue Shopping</Link>
       </header>
 
-      {!cart || cart.items.length === 0 ? (
+      {!cart?.items || cart.items.length === 0 ? (
         <div>
           <p>Your cart is empty.</p>
           <Link to="/products">
@@ -93,22 +96,22 @@ const CartPage = () => {
                 }}
               >
                 <img
-                  src={item.product.imageUrl || '/placeholder.png'}
-                  alt={item.product.name}
+                  src={item.imageUrls || '/placeholder.png'}
+                  alt={item.productName}
                   style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                 />
                 <div>
-                  <h3>{item.product.name}</h3>
-                  <p style={{ color: '#666' }}>{item.product.description}</p>
+                  <h3>{item.productName}</h3>
                 </div>
                 <div>
-                  <p style={{ fontWeight: 'bold' }}>${item.product.price.toFixed(2)}</p>
+                  <p style={{ fontWeight: 'bold' }}>
+                    ${item.productPrice ? item.productPrice.toFixed(2) : '0.00'}
+                  </p>
                 </div>
                 <div>
                   <input
                     type="number"
                     min="1"
-                    max={item.product.stockQuantity}
                     value={item.quantity}
                     onChange={(e) => handleUpdateQuantity(item.id, parseInt(e.target.value))}
                     style={{ width: '60px', padding: '0.25rem' }}

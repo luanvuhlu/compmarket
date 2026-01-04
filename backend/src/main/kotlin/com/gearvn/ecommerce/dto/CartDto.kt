@@ -7,6 +7,7 @@ data class CartItemDto(
     val productId: Long,
     val productName: String?,
     val productPrice: BigDecimal?,
+    val imageUrls: String?,
     val quantity: Int
 )
 
@@ -14,7 +15,7 @@ data class CartResponse(
     val id: Long,
     val items: List<CartItemDto>,
     val totalItems: Int,
-    val totalAmount: BigDecimal
+    val totalPrice: BigDecimal
 )
 
 data class AddToCartRequest(

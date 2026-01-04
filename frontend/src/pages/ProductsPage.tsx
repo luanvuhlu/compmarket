@@ -48,7 +48,9 @@ const ProductsPage = () => {
               )}
               <h3>{product.name}</h3>
               <p>{product.description}</p>
-              <p style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>${product.price.toFixed(2)}</p>
+              <p style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                ${product.price ? product.price.toFixed(2) : '0.00'}
+              </p>
               <p style={{ color: product.stockQuantity > 0 ? 'green' : 'red' }}>
                 {product.stockQuantity > 0 ? `In Stock (${product.stockQuantity})` : 'Out of Stock'}
               </p>

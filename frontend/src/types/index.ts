@@ -24,7 +24,9 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   token: string;
-  user: User;
+  type: string;
+  email: string;
+  roles: string[];
 }
 
 // Product Types
@@ -34,7 +36,7 @@ export interface Product {
   description: string;
   price: number;
   stockQuantity: number;
-  imageUrl?: string;
+  imageUrls?: string;
   category?: Category;
   createdAt?: string;
   updatedAt?: string;
@@ -49,13 +51,17 @@ export interface Category {
 // Cart Types
 export interface CartItem {
   id: number;
-  product: Product;
+  productId: number;
+  productName: string;
+  productPrice: number;
+  imageUrls?: string;
   quantity: number;
 }
 
 export interface Cart {
   id: number;
   items: CartItem[];
+  totalItems: number;
   totalPrice: number;
 }
 

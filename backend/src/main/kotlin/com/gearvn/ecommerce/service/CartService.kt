@@ -115,11 +115,12 @@ class CartService(
                 productId = item.product.id!!,
                 productName = item.product.name,
                 productPrice = item.product.discountPrice ?: item.product.price,
-                quantity = item.quantity
+                quantity = item.quantity,
+                imageUrls = item.product.images,
             )
         }
 
-        val totalAmount = items.fold(BigDecimal.ZERO) { acc, item ->
+        val totalPrice = items.fold(BigDecimal.ZERO) { acc, item ->
             acc + (item.productPrice!! * item.quantity.toBigDecimal())
         }
 
@@ -127,7 +128,7 @@ class CartService(
             id = this.id!!,
             items = items,
             totalItems = items.sumOf { it.quantity },
-            totalAmount = totalAmount
+            totalPrice = totalPrice
         )
     }
 }
