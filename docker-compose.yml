@@ -79,8 +79,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      elasticsearch:
-        condition: service_healthy
+      # Note: Elasticsearch dependency removed to allow running without search features
+      # Uncomment if you want to ensure Elasticsearch is ready before starting backend
+      # elasticsearch:
+      #   condition: service_healthy
     networks:
       - gearvn-network
     restart: unless-stopped

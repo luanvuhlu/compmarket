@@ -7,7 +7,10 @@ import com.gearvn.ecommerce.elasticsearch.SpecificationField
 import com.gearvn.ecommerce.entity.Product
 import com.gearvn.ecommerce.repository.ProductRepository
 import com.gearvn.ecommerce.repository.ProductSpecificationRepository
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,10 +18,12 @@ import org.springframework.transaction.annotation.Transactional
  * Service to synchronize products from PostgreSQL to Elasticsearch
  */
 @Service
+@ConditionalOnProperty(name = ["app.elasticsearch.enabled"], havingValue = "true", matchIfMissing = false)
 class ProductIndexService(
     private val productRepository: ProductRepository,
     private val productSpecificationRepository: ProductSpecificationRepository,
-    private val productDocumentRepository: ProductDocumentRepository
+    private val productDocumentRepository: ProductDocumentRepository,
+    private val objectMapper: ObjectMapper
 ) {
 
     private val logger = LoggerFactory.getLogger(ProductIndexService::class.java)
@@ -149,7 +154,9 @@ class ProductIndexService(
         
         specifications.forEach { spec ->
             when (spec.attribute.name) {
-                "ram_size" -> spec.valueString?.let { ramOptions.add(it) }
+                "ram_size" -> spec.valueNumeric?.let { 
+                    ramOptions.add("${it.toInt()}GB")
+                }
                 "processor", "processor_brand" -> spec.valueString?.let { processorFamily.add(it) }
                 "graphics_card" -> spec.valueString?.let { gpuFamily.add(it) }
                 "storage_type" -> spec.valueString?.let { storageTypes.add(it) }
@@ -189,17 +196,13 @@ class ProductIndexService(
     }
 
     /**
-     * Parse images from JSONB string
+     * Parse images from JSONB string using Jackson
      */
     private fun parseImages(imagesJson: String?): List<String> {
         if (imagesJson.isNullOrBlank()) return emptyList()
         
-        // Simple JSON array parsing (in production, use a proper JSON parser)
         return try {
-            imagesJson.trim('[', ']')
-                .split(",")
-                .map { it.trim().trim('"') }
-                .filter { it.isNotBlank() }
+            objectMapper.readValue<List<String>>(imagesJson)
         } catch (e: Exception) {
             logger.warn("Failed to parse images JSON: $imagesJson", e)
             emptyList()

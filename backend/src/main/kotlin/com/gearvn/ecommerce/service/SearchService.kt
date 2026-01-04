@@ -75,7 +75,20 @@ class SearchService(
         brand = this.brand,
         model = this.model,
         specifications = null, // Specifications are in nested format in ES
-        images = this.images.joinToString(",") { "{\"url\":\"$it\"}" },
+        images = serializeImages(this.images),
         isActive = true
     )
+    
+    private fun serializeImages(images: List<String>): String {
+        return if (images.isEmpty()) {
+            "[]"
+        } else {
+            try {
+                com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+                    .writeValueAsString(images.map { mapOf("url" to it) })
+            } catch (e: Exception) {
+                "[]"
+            }
+        }
+    }
 }
