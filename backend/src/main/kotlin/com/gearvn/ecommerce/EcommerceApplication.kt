@@ -1,5 +1,6 @@
 package com.gearvn.ecommerce
 
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.cache.annotation.EnableCaching
@@ -13,3 +14,5 @@ class EcommerceApplication
 fun main(args: Array<String>) {
     runApplication<EcommerceApplication>(*args)
 }
+
+inline fun <reified T> T.logger() = LoggerFactory.getLogger(T::class.java)

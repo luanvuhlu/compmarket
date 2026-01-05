@@ -20,12 +20,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('token');
-      if (token) {
+      const userDataStr = localStorage.getItem('userData');
+      if (token && userDataStr) {
         try {
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
+          const userData = JSON.parse(userDataStr);
+          setUser(userData);
         } catch (error) {
           localStorage.removeItem('token');
+          localStorage.removeItem('userData');
         }
       }
       setLoading(false);
@@ -36,16 +38,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     const response = await authService.login({ email, password });
-    setUser(response.user);
+    // Create user object from auth response
+    const userData = {
+      id: 0, // Backend doesn't return this yet
+      email: response.email,
+      firstName: email.split('@')[0], // Temporary until backend returns proper user data
+      lastName: '',
+      role: response.roles[0] || 'CUSTOMER'
+    };
+    localStorage.setItem('userData', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const register = async (email: string, password: string, firstName: string, lastName: string) => {
     const response = await authService.register({ email, password, firstName, lastName });
-    setUser(response.user);
+    // Create user object from auth response
+    const userData = {
+      id: 0, // Backend doesn't return this yet
+      email: response.email,
+      firstName,
+      lastName,
+      role: response.roles[0] || 'CUSTOMER'
+    };
+    localStorage.setItem('userData', JSON.stringify(userData));
+    setUser(userData);
   };
 
   const logout = () => {
     authService.logout();
+    localStorage.removeItem('userData');
     setUser(null);
   };
 

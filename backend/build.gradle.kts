@@ -35,7 +35,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
     // Database
     implementation("org.postgresql:postgresql")
     implementation("org.flywaydb:flyway-core")

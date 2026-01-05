@@ -202,7 +202,9 @@ const AdminProducts = () => {
                 <tr key={product.id} style={{ borderTop: '1px solid #dee2e6' }}>
                   <td style={{ padding: '1rem' }}>{product.id}</td>
                   <td style={{ padding: '1rem' }}>{product.name}</td>
-                  <td style={{ padding: '1rem' }}>${product.price.toFixed(2)}</td>
+                  <td style={{ padding: '1rem' }}>
+                    ${product.price ? product.price.toFixed(2) : '0.00'}
+                  </td>
                   <td style={{ padding: '1rem' }}>{product.stockQuantity}</td>
                   <td style={{ padding: '1rem' }}>{product.category?.name || 'N/A'}</td>
                   <td style={{ padding: '1rem' }}>

@@ -45,7 +45,10 @@ const ProductDetailPage = () => {
       await cartService.addToCart(product.id, quantity);
       alert('Product added to cart!');
     } catch (err: any) {
-      alert('Failed to add to cart');
+      console.error('Add to cart error:', err);
+      console.error('Error response:', err.response);
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to add to cart';
+      alert(`Failed to add to cart: ${errorMessage}`);
     } finally {
       setAddingToCart(false);
     }

@@ -10,8 +10,8 @@ export const productService = {
   },
 
   getProductById: async (id: number): Promise<Product> => {
-    const response = await api.get<Product>(`/products/${id}`);
-    return response.data;
+    const response = await api.get<{ success: boolean; data: Product }>(`/products/${id}`);
+    return response.data.data;
   },
 
   searchProducts: async (query: string, page = 0, size = 20) => {
