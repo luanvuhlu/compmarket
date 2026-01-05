@@ -34,7 +34,7 @@ class SearchService(
         // Build page response
         val pageResponse = PageResponse(
             content = products,
-            page = searchPage.number,
+            number = searchPage.number,
             size = searchPage.size,
             totalElements = searchPage.totalElements,
             totalPages = searchPage.totalPages,
