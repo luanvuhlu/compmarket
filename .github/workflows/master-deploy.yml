@@ -35,10 +35,10 @@ jobs:
           cd backend
           ./gradlew test --no-daemon
 
-      - name: Build Docker image
-        run: |
-          cd backend
-          docker build -t ecommerce-backend:latest .
+      # - name: Build Docker image
+      #   run: |
+      #     cd backend
+      #     docker build -t ecommerce-backend:latest .
 
       # - name: Upload test results
       #   if: always()
