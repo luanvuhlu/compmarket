@@ -37,6 +37,7 @@ export interface Product {
   price: number;
   stockQuantity: number;
   imageUrls?: string;
+  imageUrl?: string; // Links to imageUrls[0]
   category?: Category;
   createdAt?: string;
   updatedAt?: string;
