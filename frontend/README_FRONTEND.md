@@ -1,6 +1,6 @@
-# GearVN E-Commerce Frontend
+#  E-Commerce Frontend
 
-A modern React + TypeScript frontend for the GearVN e-commerce platform.
+A modern React + TypeScript frontend for the  e-commerce platform.
 
 ## Tech Stack
 
@@ -104,10 +104,10 @@ Build and run with Docker:
 
 ```bash
 # Build
-docker build -t gearvn-frontend .
+docker build -t ecommerce-frontend .
 
 # Run
-docker run -p 3000:80 gearvn-frontend
+docker run -p 3000:80 ecommerce-frontend
 ```
 
 Or use docker-compose from the root directory:

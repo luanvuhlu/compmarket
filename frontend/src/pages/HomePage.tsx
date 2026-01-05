@@ -7,7 +7,7 @@ const HomePage = () => {
   return (
     <div style={{ padding: '2rem' }}>
       <header style={{ marginBottom: '2rem', borderBottom: '1px solid #ccc', paddingBottom: '1rem' }}>
-        <h1>GearVN E-Commerce</h1>
+        <h1> E-Commerce</h1>
         <nav>
           <Link to="/products" style={{ marginRight: '1rem' }}>Products</Link>
           <Link to="/cart" style={{ marginRight: '1rem' }}>Cart</Link>
@@ -31,7 +31,7 @@ const HomePage = () => {
       </header>
       
       <main>
-        <h2>Welcome to GearVN E-Commerce</h2>
+        <h2>Welcome to  E-Commerce</h2>
         <p>Your one-stop shop for all your tech needs!</p>
         <Link to="/products">
           <button style={{ padding: '0.5rem 1rem', marginTop: '1rem' }}>Browse Products</button>

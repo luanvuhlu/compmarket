@@ -1,4 +1,4 @@
-# GearVN E-Commerce - Quick Start Guide
+# E-Commerce - Quick Start Guide
 
 ## 🚀 Quick Start (Docker - Recommended)
 
@@ -10,7 +10,7 @@
 
 1. **Navigate to project directory**:
    ```powershell
-   cd e:\Git\gearvn
+   cd e:\Git\ecommerce
    ```
 
 2. **Start all services**:
@@ -114,7 +114,7 @@ Now you can access protected endpoints like:
 ### Using Docker
 ```powershell
 # Connect to PostgreSQL container
-docker exec -it gearvn-postgres psql -U postgres -d gearvn_ecommerce
+docker exec -it ecommerce-postgres psql -U postgres -d ecommerce
 
 # View tables
 \dt
@@ -129,7 +129,7 @@ SELECT * FROM users;
 ### Using pgAdmin or DBeaver
 - Host: localhost
 - Port: 5432
-- Database: gearvn_ecommerce
+- Database: ecommerce_ecommerce
 - Username: postgres
 - Password: postgres
 
@@ -173,7 +173,7 @@ docker-compose logs -f redis
 
 ```
 backend/
-├── src/main/kotlin/com/gearvn/ecommerce/
+├── src/main/kotlin/com/luanvv/ecommerce/
 │   ├── config/           # Configuration (Security, CORS, Swagger)
 │   ├── controller/       # REST Controllers
 │   ├── dto/              # Data Transfer Objects

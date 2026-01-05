@@ -2,9 +2,9 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:18.1-alpine
-    container_name: gearvn-postgres
+    container_name: ecommerce-postgres
     environment:
-      POSTGRES_DB: gearvn_ecommerce
+      POSTGRES_DB: ecommerce_ecommerce
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -17,12 +17,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - gearvn-network
+      - ecommerce-network
 
   # Redis Cache
   redis:
     image: redis:8-alpine
-    container_name: gearvn-redis
+    container_name: ecommerce-redis
     ports:
       - "6379:6379"
     volumes:
@@ -34,12 +34,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - gearvn-network
+      - ecommerce-network
 
   # Elasticsearch for product search
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
-    container_name: gearvn-elasticsearch
+    container_name: ecommerce-elasticsearch
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -55,17 +55,17 @@ services:
       timeout: 10s
       retries: 5
     networks:
-      - gearvn-network
+      - ecommerce-network
 
   # Spring Boot Application
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: gearvn-backend
+    container_name: ecommerce-backend
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/gearvn_ecommerce
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ecommerce_ecommerce
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_DATA_REDIS_HOST: redis
@@ -84,13 +84,13 @@ services:
       # elasticsearch:
       #   condition: service_healthy
     networks:
-      - gearvn-network
+      - ecommerce-network
     restart: unless-stopped
 
   # React Frontend (Development with hot reload)
   frontend:
     image: node:20-alpine
-    container_name: gearvn-frontend
+    container_name: ecommerce-frontend
     working_dir: /app
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     volumes:
@@ -103,18 +103,18 @@ services:
     depends_on:
       - backend
     networks:
-      - gearvn-network
+      - ecommerce-network
     restart: unless-stopped
 
   # MailHog for email testing (development only)
   mailhog:
     image: mailhog/mailhog:latest
-    container_name: gearvn-mailhog
+    container_name: ecommerce-mailhog
     ports:
       - "1025:1025"  # SMTP
       - "8025:8025"  # Web UI
     networks:
-      - gearvn-network
+      - ecommerce-network
 
 volumes:
   postgres_data:
@@ -125,5 +125,5 @@ volumes:
     driver: local
 
 networks:
-  gearvn-network:
+  ecommerce-network:
     driver: bridge

@@ -310,5 +310,5 @@ See [design/search-architecture.md](../design/search-architecture.md) for detail
 For issues or questions about the search feature:
 1. Check the architecture documentation
 2. Review API examples in Swagger UI
-3. Check Elasticsearch logs: `docker logs gearvn-elasticsearch`
+3. Check Elasticsearch logs: `docker logs ecommerce-elasticsearch`
 4. Check application logs for indexing errors
