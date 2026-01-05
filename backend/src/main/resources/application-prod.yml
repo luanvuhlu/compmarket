@@ -32,6 +32,6 @@ app:
 logging:
   level:
     root: INFO
-    '[com.luanvv.ecommerce]': INFO
+    com.luanvv.ecommerce: INFO
   file:
     name: /var/log/ecommerce/application.log

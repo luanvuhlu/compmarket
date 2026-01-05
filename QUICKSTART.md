@@ -10,7 +10,8 @@
 
 1. **Navigate to project directory**:
    ```powershell
-   cd e:\Git\ecommerce
+   # Replace this with the path to your local ecommerce project
+   cd path\to\ecommerce
    ```
 
 2. **Start all services**:

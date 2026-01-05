@@ -38,7 +38,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd backend
-          docker build -t gearvn-backend:latest .
+          docker build -t ecommerce-backend:latest .
 
       - name: Upload test results
         if: always()
@@ -91,7 +91,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd frontend
-          docker build -t gearvn-frontend:latest .
+          docker build -t ecommerce-frontend:latest .
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
