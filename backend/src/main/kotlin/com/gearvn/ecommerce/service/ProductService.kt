@@ -6,6 +6,9 @@ import com.gearvn.ecommerce.dto.ProductDetailResponse
 import com.gearvn.ecommerce.dto.ProductResponse
 import com.gearvn.ecommerce.dto.ProductSpecificationDto
 import com.gearvn.ecommerce.entity.Product
+import com.gearvn.ecommerce.event.ProductCreatedEvent
+import com.gearvn.ecommerce.event.ProductDeletedEvent
+import com.gearvn.ecommerce.event.ProductUpdatedEvent
 import com.gearvn.ecommerce.exception.ResourceNotFoundException
 import com.gearvn.ecommerce.logger
 import com.gearvn.ecommerce.repository.CategoryRepository
@@ -13,6 +16,7 @@ import com.gearvn.ecommerce.repository.ProductRepository
 import com.gearvn.ecommerce.repository.ProductSpecificationRepository
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -22,7 +26,8 @@ import org.springframework.transaction.annotation.Transactional
 class ProductService(
     private val productRepository: ProductRepository,
     private val categoryRepository: CategoryRepository,
-    private val productSpecificationRepository: ProductSpecificationRepository
+    private val productSpecificationRepository: ProductSpecificationRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     private val log = logger()
 
@@ -130,7 +135,12 @@ class ProductService(
             images = request.images
         )
 
-        return productRepository.save(product).toResponse()
+        val savedProduct = productRepository.save(product)
+        
+        // Publish event for Elasticsearch indexing
+        eventPublisher.publishEvent(ProductCreatedEvent(savedProduct))
+        
+        return savedProduct.toResponse()
     }
 
     @Transactional
@@ -156,7 +166,12 @@ class ProductService(
             images = request.images
         }
 
-        return productRepository.save(product).toResponse()
+        val updatedProduct = productRepository.save(product)
+        
+        // Publish event for Elasticsearch reindexing
+        eventPublisher.publishEvent(ProductUpdatedEvent(updatedProduct))
+        
+        return updatedProduct.toResponse()
     }
 
     @Transactional
@@ -166,6 +181,9 @@ class ProductService(
             .orElseThrow { ResourceNotFoundException("Product not found with id: $id") }
         product.isActive = false
         productRepository.save(product)
+        
+        // Publish event for Elasticsearch deletion
+        eventPublisher.publishEvent(ProductDeletedEvent(id))
     }
 
     private fun Product.toResponse() = ProductResponse(
