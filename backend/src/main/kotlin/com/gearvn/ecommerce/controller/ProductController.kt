@@ -3,7 +3,9 @@ package com.gearvn.ecommerce.controller
 import com.gearvn.ecommerce.dto.ApiResponse
 import com.gearvn.ecommerce.dto.PageResponse
 import com.gearvn.ecommerce.dto.ProductCreateRequest
+import com.gearvn.ecommerce.dto.ProductDetailResponse
 import com.gearvn.ecommerce.dto.ProductResponse
+import com.gearvn.ecommerce.dto.ProductSpecificationDto
 import com.gearvn.ecommerce.service.ProductService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
@@ -21,7 +23,10 @@ class ProductController(
 ) {
 
     @GetMapping
-    @Operation(summary = "Get all products", description = "Retrieve paginated list of active products")
+    @Operation(
+        summary = "Get all products", 
+        description = "Retrieve paginated list of active products. Returns lightweight product info without EAV specifications for better performance."
+    )
     fun getAllProducts(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int
@@ -32,7 +37,10 @@ class ProductController(
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get product by ID", description = "Retrieve product details by ID")
+    @Operation(
+        summary = "Get product by ID", 
+        description = "Retrieve basic product details by ID. For full details including structured specifications, use /api/products/{id}/detail"
+    )
     fun getProductById(@PathVariable id: Long): ResponseEntity<ApiResponse<ProductResponse>> {
         val product = productService.getProductById(id)
         return ResponseEntity.ok(
@@ -40,6 +48,38 @@ class ProductController(
                 success = true,
                 message = "Product retrieved successfully",
                 data = product
+            )
+        )
+    }
+
+    @GetMapping("/{id}/detail")
+    @Operation(
+        summary = "Get product detail with specifications",
+        description = "Retrieve complete product details including structured EAV specifications. Use this for product detail pages."
+    )
+    fun getProductDetailById(@PathVariable id: Long): ResponseEntity<ApiResponse<ProductDetailResponse>> {
+        val productDetail = productService.getProductDetailById(id)
+        return ResponseEntity.ok(
+            ApiResponse(
+                success = true,
+                message = "Product detail retrieved successfully",
+                data = productDetail
+            )
+        )
+    }
+
+    @GetMapping("/{id}/specifications")
+    @Operation(
+        summary = "Get product specifications separately",
+        description = "Retrieve only the EAV specifications for a product. Useful for lazy loading or when you need specifications independently."
+    )
+    fun getProductSpecifications(@PathVariable id: Long): ResponseEntity<ApiResponse<List<ProductSpecificationDto>>> {
+        val specifications = productService.getProductSpecifications(id)
+        return ResponseEntity.ok(
+            ApiResponse(
+                success = true,
+                message = "Product specifications retrieved successfully",
+                data = specifications
             )
         )
     }

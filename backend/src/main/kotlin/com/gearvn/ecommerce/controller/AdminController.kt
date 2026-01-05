@@ -3,10 +3,12 @@ package com.gearvn.ecommerce.controller
 import com.gearvn.ecommerce.dto.ApiResponse
 import com.gearvn.ecommerce.dto.ProductCreateRequest
 import com.gearvn.ecommerce.dto.ProductResponse
+import com.gearvn.ecommerce.service.ProductIndexService
 import com.gearvn.ecommerce.service.ProductService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*
 class AdminProductController(
     private val productService: ProductService
 ) {
+    @Autowired(required = false)
+    private val productIndexService: ProductIndexService? = null
 
     @PostMapping
     @Operation(summary = "Create product", description = "Create a new product (Admin only)")
@@ -59,6 +63,58 @@ class AdminProductController(
                 success = true,
                 message = "Product deleted successfully",
                 data = null
+            )
+        )
+    }
+
+    @PostMapping("/reindex")
+    @Operation(
+        summary = "Reindex all products to Elasticsearch",
+        description = "Triggers bulk reindexing of all products to Elasticsearch. Only available when Elasticsearch is enabled."
+    )
+    fun reindexAllProducts(): ResponseEntity<ApiResponse<Map<String, Any>>> {
+        if (productIndexService == null) {
+            return ResponseEntity.ok(
+                ApiResponse(
+                    success = false,
+                    message = "Elasticsearch is not enabled",
+                    data = mapOf("status" to "disabled")
+                )
+            )
+        }
+
+        productIndexService.indexAllProducts()
+        return ResponseEntity.ok(
+            ApiResponse(
+                success = true,
+                message = "Bulk reindexing started successfully",
+                data = mapOf("status" to "reindexing")
+            )
+        )
+    }
+
+    @PostMapping("/{id}/reindex")
+    @Operation(
+        summary = "Reindex a single product to Elasticsearch",
+        description = "Triggers reindexing of a specific product to Elasticsearch. Only available when Elasticsearch is enabled."
+    )
+    fun reindexProduct(@PathVariable id: Long): ResponseEntity<ApiResponse<Map<String, Any>>> {
+        if (productIndexService == null) {
+            return ResponseEntity.ok(
+                ApiResponse(
+                    success = false,
+                    message = "Elasticsearch is not enabled",
+                    data = mapOf("status" to "disabled")
+                )
+            )
+        }
+
+        productIndexService.indexProduct(id)
+        return ResponseEntity.ok(
+            ApiResponse(
+                success = true,
+                message = "Product reindexed successfully",
+                data = mapOf("productId" to id, "status" to "indexed")
             )
         )
     }

@@ -20,13 +20,13 @@ class SwaggerConfig {
         return OpenAPI()
             .info(
                 Info()
-                    .title("GearVN E-Commerce API")
-                    .description("REST API for GearVN E-Commerce Platform - Computers & Accessories Online Store")
+                    .title("E-Commerce API")
+                    .description("REST API for E-Commerce Platform - Computers & Accessories Online Store")
                     .version("1.0.0")
                     .contact(
                         Contact()
-                            .name("GearVN Team")
-                            .email("support@gearvn.com")
+                            .name("Luan Vu")
+                            .email("luanvuhlu@gmail.com")
                     )
                     .license(
                         License()
