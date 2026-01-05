@@ -1,1 +1,1 @@
-rootProject.name = "gearvn-ecommerce"
+rootProject.name = "ecommerce"
