@@ -1,4 +1,4 @@
-# GearVN E-Commerce Platform
+# E-Commerce Platform
 
 A modern e-commerce platform for computers and accessories built with Spring Boot 3.x (Kotlin) and React.
 
@@ -27,7 +27,7 @@ A modern e-commerce platform for computers and accessories built with Spring Boo
 backend/
 ├── src/
 │   ├── main/
-│   │   ├── kotlin/com/gearvn/ecommerce/
+│   │   ├── kotlin/com/luanvv/ecommerce/
 │   │   │   ├── config/          # Configuration classes
 │   │   │   ├── entity/          # JPA entities
 │   │   │   ├── repository/      # Spring Data repositories
@@ -82,7 +82,7 @@ backend/
 1. **Install PostgreSQL 18.1**:
    ```bash
    # Create database
-   createdb gearvn_ecommerce
+   createdb ecommerce
    ```
 
 2. **Install Redis 8**:
@@ -104,7 +104,7 @@ backend/
 For production, set these environment variables:
 
 ```bash
-DATABASE_URL=jdbc:postgresql://localhost:5432/gearvn_ecommerce
+DATABASE_URL=jdbc:postgresql://localhost:5432/ecommerce
 DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=your_password
 REDIS_HOST=localhost
@@ -176,7 +176,7 @@ Schema includes:
 ./gradlew bootRun
 
 # Build Docker image
-docker build -t gearvn-ecommerce:latest .
+docker build -t ecommerce:latest .
 ```
 
 ### Database Migrations
@@ -204,4 +204,4 @@ Spring Boot Actuator endpoints:
 
 ## License
 
-Copyright © 2025 GearVN
+Copyright © 2025 E-Commerce Platform. All rights reserved.

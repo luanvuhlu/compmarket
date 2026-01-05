@@ -1,9 +1,9 @@
 spring:
   application:
-    name: gearvn-ecommerce
+    name: ecommerce
   
   datasource:
-    url: jdbc:postgresql://localhost:5432/gearvn_ecommerce
+    url: jdbc:postgresql://localhost:5432/ecommerce
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -104,7 +104,7 @@ app:
 logging:
   level:
     root: INFO
-    com.gearvn.ecommerce: DEBUG
+    com.luanvv.ecommerce: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
   pattern:

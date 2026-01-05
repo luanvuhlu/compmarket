@@ -8,7 +8,7 @@ plugins {
     kotlin("plugin.jpa") version "2.1.0"
 }
 
-group = "com.gearvn"
+group = "com.luanvv"
 version = "1.0.0"
 
 java {

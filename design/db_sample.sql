@@ -12,11 +12,11 @@ INSERT INTO users (email, password_hash, first_name, last_name, phone, is_active
 
 -- Admin User
 INSERT INTO users (email, password_hash, first_name, last_name, phone, is_active, email_verified) VALUES
-('admin@gearvn.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Admin', 'User', '0909999999', true, true);
+('admin@ecommerce.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Admin', 'User', '0909999999', true, true);
 
 -- Super Admin User
 INSERT INTO users (email, password_hash, first_name, last_name, phone, is_active, email_verified) VALUES
-('superadmin@gearvn.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Super', 'Admin', '0909999998', true, true);
+('superadmin@ecommerce.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Super', 'Admin', '0909999998', true, true);
 
 -- Assign Roles to Users
 -- Customer roles (user_id 1, 2, 3)

@@ -32,6 +32,6 @@ app:
 logging:
   level:
     root: INFO
-    com.gearvn.ecommerce: INFO
+    com.luanvv.ecommerce: INFO
   file:
     name: /var/log/gearvn-ecommerce/application.log
