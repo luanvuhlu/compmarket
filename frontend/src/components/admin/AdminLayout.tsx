@@ -62,7 +62,7 @@ const AdminLayout = () => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <h1 style={{ margin: 0 }}>GearVN Admin</h1>
+          <h1 style={{ margin: 0 }}>E-Commerce Admin</h1>
           <div>
             <span style={{ marginRight: '1rem' }}>Welcome, {user?.firstName}!</span>
             <button onClick={handleLogout} style={{ padding: '0.5rem 1rem' }}>Logout</button>
