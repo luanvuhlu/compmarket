@@ -56,7 +56,7 @@ const CartPage = () => {
     if (window.confirm('Are you sure you want to clear your cart?')) {
       try {
         await cartService.clearCart();
-        setCart({ id: cart?.id || 0, items: [], totalPrice: 0 });
+        setCart({ id: cart?.id || 0, items: [], totalItems: 0, totalPrice: 0 });
       } catch (err) {
         alert('Failed to clear cart');
       }
