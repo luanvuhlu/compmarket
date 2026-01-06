@@ -13,8 +13,29 @@ data class SearchRequest(
     val maxPrice: BigDecimal? = null,
     val inStock: Boolean? = null,
     val sortBy: SortOption = SortOption.RELEVANCE,
-    val sortOrder: SortOrder = SortOrder.DESC
+    val sortOrder: SortOrder = SortOrder.DESC,
+    val specifications: Map<String, String>? = null // e.g., "ram_size" -> "16", "processor" -> "Intel Core i7"
 )
+
+/**
+ * Specification filter for attribute-based search
+ */
+data class SpecificationFilter(
+    val attributeName: String,
+    val value: String,
+    val operator: SpecificationOperator = SpecificationOperator.EQUALS
+)
+
+/**
+ * Operators for specification filtering
+ */
+enum class SpecificationOperator {
+    EQUALS,         // Exact match: RAM = 16GB
+    CONTAINS,       // Contains text: CPU contains "Intel"
+    GREATER_THAN,   // Numeric: Storage > 512GB
+    LESS_THAN,      // Numeric: Price < 1000
+    RANGE           // Between values: RAM between 8GB and 32GB
+}
 
 /**
  * Sort options for search results
@@ -48,7 +69,8 @@ data class SearchResponse(
 data class SearchFacets(
     val categories: List<CategoryFacet> = emptyList(),
     val brands: List<BrandFacet> = emptyList(),
-    val priceRanges: List<PriceRangeFacet> = emptyList()
+    val priceRanges: List<PriceRangeFacet> = emptyList(),
+    val specifications: List<SpecificationFacet> = emptyList()
 )
 
 /**
@@ -77,3 +99,21 @@ data class PriceRangeFacet(
     val label: String,
     val count: Long
 )
+
+/**
+ * Specification facet for attribute-based filtering
+ */
+data class SpecificationFacet(
+    val attributeName: String,
+    val attributeDisplayName: String,
+    val values: List<SpecificationValue>
+)
+
+/**
+ * Specification value with count for faceted search
+ */
+data class SpecificationValue(
+    val value: String,
+    val count: Long
+)
+

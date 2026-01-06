@@ -4,6 +4,7 @@ import com.luanvv.ecommerce.dto.BrandFacet
 import com.luanvv.ecommerce.dto.CategoryFacet
 import com.luanvv.ecommerce.dto.PriceRangeFacet
 import com.luanvv.ecommerce.dto.SearchRequest
+import com.luanvv.ecommerce.dto.SpecificationFacet
 import com.luanvv.ecommerce.entity.Product
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -31,4 +32,9 @@ interface ProductSearchRepository {
      * Get price range facets for current search
      */
     fun getPriceRangeFacets(searchRequest: SearchRequest): List<PriceRangeFacet>
+
+    /**
+     * Get specification facets for current search (e.g., RAM values, CPU brands)
+     */
+    fun getSpecificationFacets(searchRequest: SearchRequest): List<SpecificationFacet>
 }

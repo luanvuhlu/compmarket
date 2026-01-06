@@ -18,16 +18,50 @@ class ProductSearchRepositoryImpl : ProductSearchRepository {
     private lateinit var entityManager: EntityManager
 
     override fun searchWithFilters(searchRequest: SearchRequest, pageable: Pageable): Page<Product> {
-        val queryBuilder = StringBuilder("""
-            SELECT p FROM Product p
-            WHERE p.isActive = true
-        """)
-        
         val params = mutableMapOf<String, Any>()
-        
+
+        // Build the base WHERE clause that will be shared by both queries
+        val whereClause = buildWhereClause(searchRequest, params)
+
+        // Build count query
+        val countQueryString = """
+            SELECT COUNT(DISTINCT p.id)
+            FROM Product p
+            LEFT JOIN ProductSpecification ps ON ps.product.id = p.id
+            LEFT JOIN AttributeDefinition ad ON ad.id = ps.attribute.id
+            $whereClause
+        """.trimIndent()
+
+        val countQuery = entityManager.createQuery(countQueryString, Long::class.java)
+        params.forEach { (key, value) -> countQuery.setParameter(key, value) }
+        val total = countQuery.singleResult
+
+        // Build data query with sorting
+        val dataQueryString = """
+            SELECT DISTINCT p 
+            FROM Product p
+            LEFT JOIN ProductSpecification ps ON ps.product.id = p.id
+            LEFT JOIN AttributeDefinition ad ON ad.id = ps.attribute.id
+            $whereClause
+            ${getSortClause(searchRequest.sortBy, searchRequest.sortOrder)}
+        """.trimIndent()
+
+        val query = entityManager.createQuery(dataQueryString, Product::class.java)
+        params.forEach { (key, value) -> query.setParameter(key, value) }
+        query.firstResult = pageable.offset.toInt()
+        query.maxResults = pageable.pageSize
+
+        val results = query.resultList
+
+        return PageImpl(results, pageable, total)
+    }
+
+    private fun buildWhereClause(searchRequest: SearchRequest, params: MutableMap<String, Any>): String {
+        val whereBuilder = StringBuilder("WHERE p.isActive = true")
+
         // Add full-text search if query is provided
         if (!searchRequest.query.isNullOrBlank()) {
-            queryBuilder.append("""
+            whereBuilder.append("""
                 AND (
                     LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
                     OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))
@@ -37,60 +71,64 @@ class ProductSearchRepositoryImpl : ProductSearchRepository {
             params["query"] = searchRequest.query
         }
         
+        // Add specification filters (e.g., RAM: 16GB, CPU: Intel Core i7)
+        if (!searchRequest.specifications.isNullOrEmpty()) {
+            searchRequest.specifications.forEach { (attributeName, value) ->
+                val paramKey = "spec_${attributeName.replace(" ", "_").replace("-", "_")}"
+                whereBuilder.append("""
+                    AND EXISTS (
+                        SELECT 1 FROM ProductSpecification ps2
+                        JOIN AttributeDefinition ad2 ON ad2.id = ps2.attribute.id
+                        WHERE ps2.product.id = p.id
+                        AND LOWER(ad2.name) = LOWER(:${paramKey}_attr)
+                        AND (
+                            LOWER(ps2.valueString) LIKE LOWER(CONCAT('%', :${paramKey}_val, '%'))
+                            OR CAST(ps2.valueNumeric AS STRING) LIKE CONCAT('%', :${paramKey}_val, '%')
+                        )
+                    )
+                """)
+                params["${paramKey}_attr"] = attributeName
+                params["${paramKey}_val"] = value
+            }
+        }
+
         // Add category filter
         if (!searchRequest.categoryIds.isNullOrEmpty()) {
-            queryBuilder.append(" AND p.category.id IN :categoryIds")
+            whereBuilder.append(" AND p.category.id IN :categoryIds")
             params["categoryIds"] = searchRequest.categoryIds
         }
         
         // Add brand filter
         if (!searchRequest.brands.isNullOrEmpty()) {
-            queryBuilder.append(" AND p.brand IN :brands")
+            whereBuilder.append(" AND p.brand IN :brands")
             params["brands"] = searchRequest.brands
         }
         
         // Add price range filter
         if (searchRequest.minPrice != null) {
-            queryBuilder.append(" AND p.price >= :minPrice")
+            whereBuilder.append(" AND p.price >= :minPrice")
             params["minPrice"] = searchRequest.minPrice
         }
         if (searchRequest.maxPrice != null) {
-            queryBuilder.append(" AND p.price <= :maxPrice")
+            whereBuilder.append(" AND p.price <= :maxPrice")
             params["maxPrice"] = searchRequest.maxPrice
         }
         
         // Add stock filter
         if (searchRequest.inStock == true) {
-            queryBuilder.append(" AND p.stockQuantity > 0")
+            whereBuilder.append(" AND p.stockQuantity > 0")
         }
         
-        // Add sorting
-        queryBuilder.append(getSortClause(searchRequest.sortBy, searchRequest.sortOrder))
-        
-        // Count query
-        val countQuery = entityManager.createQuery(
-            queryBuilder.toString().replace("SELECT p", "SELECT COUNT(p)"),
-            Long::class.java
-        )
-        params.forEach { (key, value) -> countQuery.setParameter(key, value) }
-        val total = countQuery.singleResult
-        
-        // Data query with pagination
-        val query = entityManager.createQuery(queryBuilder.toString(), Product::class.java)
-        params.forEach { (key, value) -> query.setParameter(key, value) }
-        query.firstResult = pageable.offset.toInt()
-        query.maxResults = pageable.pageSize
-        
-        val results = query.resultList
-        
-        return PageImpl(results, pageable, total)
+        return whereBuilder.toString()
     }
 
     override fun getCategoryFacets(searchRequest: SearchRequest): List<CategoryFacet> {
         val queryBuilder = StringBuilder("""
-            SELECT c.id, c.name, COUNT(p.id)
+            SELECT c.id, c.name, COUNT(DISTINCT p.id)
             FROM Product p
             JOIN p.category c
+            LEFT JOIN ProductSpecification ps ON ps.product.id = p.id
+            LEFT JOIN AttributeDefinition ad ON ad.id = ps.attribute.id
             WHERE p.isActive = true
         """)
         
@@ -108,6 +146,27 @@ class ProductSearchRepositoryImpl : ProductSearchRepository {
             params["query"] = searchRequest.query
         }
         
+        // Add specification filters
+        if (!searchRequest.specifications.isNullOrEmpty()) {
+            searchRequest.specifications.forEach { (attributeName, value) ->
+                val paramKey = "spec_${attributeName.replace(" ", "_")}"
+                queryBuilder.append("""
+                    AND EXISTS (
+                        SELECT 1 FROM ProductSpecification ps2
+                        JOIN AttributeDefinition ad2 ON ad2.id = ps2.attribute.id
+                        WHERE ps2.product.id = p.id
+                        AND LOWER(ad2.name) = LOWER(:${paramKey}_attr)
+                        AND (
+                            LOWER(ps2.valueString) LIKE LOWER(CONCAT('%', :${paramKey}_val, '%'))
+                            OR CAST(ps2.valueNumeric AS STRING) LIKE CONCAT('%', :${paramKey}_val, '%')
+                        )
+                    )
+                """)
+                params["${paramKey}_attr"] = attributeName
+                params["${paramKey}_val"] = value
+            }
+        }
+
         // Add brand filter
         if (!searchRequest.brands.isNullOrEmpty()) {
             queryBuilder.append(" AND p.brand IN :brands")
@@ -129,8 +188,8 @@ class ProductSearchRepositoryImpl : ProductSearchRepository {
             queryBuilder.append(" AND p.stockQuantity > 0")
         }
         
-        queryBuilder.append(" GROUP BY c.id, c.name ORDER BY COUNT(p.id) DESC")
-        
+        queryBuilder.append(" GROUP BY c.id, c.name ORDER BY COUNT(DISTINCT p.id) DESC")
+
         val query = entityManager.createQuery(queryBuilder.toString())
         params.forEach { (key, value) -> query.setParameter(key, value) }
         
@@ -279,6 +338,92 @@ class ProductSearchRepositoryImpl : ProductSearchRepository {
         return query.singleResult
     }
     
+    override fun getSpecificationFacets(searchRequest: SearchRequest): List<SpecificationFacet> {
+        // Get top filterable attributes with their values
+        val queryBuilder = StringBuilder("""
+            SELECT ad.name, ad.displayName, 
+                   COALESCE(ps.valueString, CAST(ps.valueNumeric AS STRING)), 
+                   COUNT(DISTINCT p.id)
+            FROM Product p
+            JOIN ProductSpecification ps ON ps.product.id = p.id
+            JOIN AttributeDefinition ad ON ad.id = ps.attribute.id
+            WHERE p.isActive = true 
+            AND ad.isFilterable = true
+            AND (ps.valueString IS NOT NULL OR ps.valueNumeric IS NOT NULL)
+        """)
+
+        val params = mutableMapOf<String, Any>()
+
+        // Add search query filter (same filters as main search)
+        if (!searchRequest.query.isNullOrBlank()) {
+            queryBuilder.append("""
+                AND (
+                    LOWER(p.name) LIKE LOWER(CONCAT('%', :query, '%'))
+                    OR LOWER(p.description) LIKE LOWER(CONCAT('%', :query, '%'))
+                    OR LOWER(p.brand) LIKE LOWER(CONCAT('%', :query, '%'))
+                )
+            """)
+            params["query"] = searchRequest.query
+        }
+
+        // Add category filter
+        if (!searchRequest.categoryIds.isNullOrEmpty()) {
+            queryBuilder.append(" AND p.category.id IN :categoryIds")
+            params["categoryIds"] = searchRequest.categoryIds
+        }
+
+        // Add brand filter
+        if (!searchRequest.brands.isNullOrEmpty()) {
+            queryBuilder.append(" AND p.brand IN :brands")
+            params["brands"] = searchRequest.brands
+        }
+
+        // Add price range filter
+        if (searchRequest.minPrice != null) {
+            queryBuilder.append(" AND p.price >= :minPrice")
+            params["minPrice"] = searchRequest.minPrice
+        }
+        if (searchRequest.maxPrice != null) {
+            queryBuilder.append(" AND p.price <= :maxPrice")
+            params["maxPrice"] = searchRequest.maxPrice
+        }
+
+        // Add stock filter
+        if (searchRequest.inStock == true) {
+            queryBuilder.append(" AND p.stockQuantity > 0")
+        }
+
+        queryBuilder.append("""
+            GROUP BY ad.name, ad.displayName, COALESCE(ps.valueString, CAST(ps.valueNumeric AS STRING))
+            HAVING COUNT(DISTINCT p.id) > 0
+            ORDER BY ad.name, COUNT(DISTINCT p.id) DESC
+        """)
+
+        val query = entityManager.createQuery(queryBuilder.toString())
+        params.forEach { (key, value) -> query.setParameter(key, value) }
+
+        @Suppress("UNCHECKED_CAST")
+        val results = query.resultList as List<Array<Any>>
+
+        // Group results by attribute name
+        val groupedResults = results.groupBy { row ->
+            Pair(row[0] as String, row[1] as String) // (attributeName, displayName)
+        }
+
+        return groupedResults.map { (attributeInfo, values) ->
+            SpecificationFacet(
+                attributeName = attributeInfo.first,
+                attributeDisplayName = attributeInfo.second,
+                values = values.map { row ->
+                    SpecificationValue(
+                        value = row[2] as String,
+                        count = row[3] as Long
+                    )
+                }.take(10) // Limit to top 10 values per attribute
+            )
+        }
+    }
+
     private fun getSortClause(sortBy: SortOption, sortOrder: SortOrder): String {
         val order = if (sortOrder == SortOrder.ASC) "ASC" else "DESC"
         

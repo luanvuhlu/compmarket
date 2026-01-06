@@ -105,6 +105,39 @@ class ProductService(
         return PageResponse.from(productPage)
     }
 
+    /**
+     * Full-text search using PostgreSQL's search_vector
+     * Provides better search relevance and performance for text queries
+     */
+    @Cacheable(value = ["product-search"], key = "#query + '_' + #pageable.pageNumber + '_' + #pageable.pageSize")
+    fun fullTextSearch(query: String, pageable: Pageable): PageResponse<ProductResponse> {
+        // Prepare query for PostgreSQL tsquery format
+        val searchQuery = prepareFullTextQuery(query)
+
+        val page = productRepository.fullTextSearch(searchQuery, pageable)
+        val products = page.content.map { it.toResponse() }
+        val productPage = PageImpl(products, pageable, page.totalElements)
+        return PageResponse.from(productPage)
+    }
+
+    /**
+     * Prepare query string for PostgreSQL full-text search
+     * Converts "gaming laptop intel" to "gaming:* & laptop:* & intel:*"
+     */
+    private fun prepareFullTextQuery(query: String): String {
+        return query.trim()
+            .split("\\s+".toRegex())
+            .filter { it.isNotBlank() }
+            .joinToString(" & ") { word ->
+                // Clean word and add wildcard for partial matching
+                val cleanWord = word.replace("[^a-zA-Z0-9]".toRegex(), "")
+                if (cleanWord.isNotEmpty()) "${cleanWord}:*" else ""
+            }
+            .replace(" & ", " & ")
+            .trim()
+            .takeIf { it.isNotEmpty() } ?: "''::tsquery"
+    }
+
     fun getProductsByCategory(categoryId: Long, pageable: Pageable): PageResponse<ProductResponse> {
         if (!categoryRepository.existsById(categoryId)) {
             throw ResourceNotFoundException("Category not found with id: $categoryId")

@@ -41,6 +41,7 @@ class Product(
     var model: String? = null,
 
     @Column(columnDefinition = "jsonb")
+    @Deprecated("Use a dedicated Attribute entity instead")
     var specifications: String? = null,
 
     @Column(columnDefinition = "jsonb")

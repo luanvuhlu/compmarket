@@ -97,6 +97,24 @@ class ProductController(
         return ResponseEntity.ok(productPage)
     }
 
+    @GetMapping("/search/fulltext")
+    @Operation(
+        summary = "Full-text search products",
+        description = "Advanced full-text search using PostgreSQL's search_vector. " +
+                     "Provides better relevance ranking and performance for complex text queries. " +
+                     "Supports phrase matching, stemming, and ranking by relevance."
+    )
+    fun fullTextSearchProducts(
+        @RequestParam query: String,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "20") size: Int
+    ): ResponseEntity<PageResponse<ProductResponse>> {
+        val pageable = PageRequest.of(page, size)
+        val productPage = productService.fullTextSearch(query, pageable)
+
+        return ResponseEntity.ok(productPage)
+    }
+
     @GetMapping("/category/{categoryId}")
     @Operation(summary = "Get products by category", description = "Retrieve products by category ID")
     fun getProductsByCategory(
