@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 @SecurityRequirement(name = "bearerAuth")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 @Tag(name = "Admin - Products", description = "Admin product management endpoints")
-class AdminProductController(
+class AdminController(
     private val productService: ProductService
 ) {
     @Autowired(required = false)

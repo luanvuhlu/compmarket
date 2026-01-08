@@ -1,6 +1,6 @@
 package com.luanvv.ecommerce.service
 
-import com.luanvv.ecommerce.dto.*
+import com.luanvv.ecommerce.dto.ProductCreateRequest
 import com.luanvv.ecommerce.entity.*
 import com.luanvv.ecommerce.event.ProductCreatedEvent
 import com.luanvv.ecommerce.event.ProductDeletedEvent
@@ -13,20 +13,17 @@ import io.mockk.*
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.assertj.core.api.Assertions.*
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import java.math.BigDecimal
 import java.util.*
-import java.util.stream.Stream
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("ProductService Tests")
