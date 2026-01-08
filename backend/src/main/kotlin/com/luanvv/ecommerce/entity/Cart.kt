@@ -15,5 +15,5 @@ class Cart(
     var user: User,
 
     @OneToMany(mappedBy = "cart", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var items: MutableList<CartItem> = mutableListOf()
+    var items: List<CartItem> = emptyList()
 ) : BaseEntity()
